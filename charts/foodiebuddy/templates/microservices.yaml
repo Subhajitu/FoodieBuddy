@@ -1,0 +1,53 @@
+{{- $root := . -}}
+{{- range $name, $service := .Values.services }}
+{{- if $service.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "foodiebuddy.serviceName" (dict "root" $root "name" $name) }}
+  labels:
+    {{- include "foodiebuddy.labels" $root | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}
+spec:
+  replicas: {{ $service.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ $root.Release.Name }}
+      app.kubernetes.io/component: {{ $name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: {{ $root.Release.Name }}
+        app.kubernetes.io/component: {{ $name }}
+    spec:
+      containers:
+        - name: {{ $name }}
+          image: "{{ $service.image.repository }}:{{ $service.image.tag }}"
+          imagePullPolicy: {{ default $root.Values.global.imagePullPolicy $service.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ $service.service.targetPort }}
+          {{- with $service.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "foodiebuddy.serviceName" (dict "root" $root "name" $name) }}
+  labels:
+    {{- include "foodiebuddy.labels" $root | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}
+spec:
+  type: {{ $service.service.type }}
+  selector:
+    app.kubernetes.io/instance: {{ $root.Release.Name }}
+    app.kubernetes.io/component: {{ $name }}
+  ports:
+    - name: http
+      port: {{ $service.service.port }}
+      targetPort: {{ $service.service.targetPort }}
+{{- end }}
+{{- end }}
