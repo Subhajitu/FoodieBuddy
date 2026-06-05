@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,6 +25,7 @@ public class RestaurantController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Restaurant> addRestaurant(@RequestBody Restaurant restaurant) {
         validateRestaurant(restaurant);
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
@@ -31,6 +33,7 @@ public class RestaurantController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public List<Restaurant> listRestaurants() {
         return restaurantRepository.findAll();
     }

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret:foodiebuddy-default-secret-key-for-local-development-only}")
+    @Value("${jwt.secret:${JWT_SECRET:foodiebuddy-default-secret-key-for-local-development-only-32-chars-long}}")
     private String secret;
 
     @Value("${jwt.expiration-ms:86400000}")
@@ -35,7 +35,7 @@ public class JwtUtil {
     public boolean validateToken(String token) {
         try {
             return !isTokenExpired(token);
-        } catch (RuntimeException ex) {
+        } catch (Exception ex) {
             return false;
         }
     }
@@ -53,7 +53,8 @@ public class JwtUtil {
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        return claimsResolver.apply(extractAllClaims(token));
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
@@ -82,6 +83,7 @@ public class JwtUtil {
     }
 
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

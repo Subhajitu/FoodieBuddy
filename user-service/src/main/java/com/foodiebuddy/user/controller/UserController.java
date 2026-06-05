@@ -52,6 +52,21 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse(token));
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+        validateLoginRequest(request);
+
+        User user = userRepository.findByUsername(request.username())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
+
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+        }
+
+        String token = jwtUtil.generateToken(user);
+        return ResponseEntity.ok(new AuthResponse(token));
+    }
+
     private void validateRegisterRequest(RegisterRequest request) {
         if (request == null
                 || !StringUtils.hasText(request.username())
@@ -63,7 +78,20 @@ public class UserController {
         }
     }
 
+    private void validateLoginRequest(LoginRequest request) {
+        if (request == null
+                || !StringUtils.hasText(request.username())
+                || !StringUtils.hasText(request.password())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Username and password are required");
+        }
+    }
+
     public record RegisterRequest(String username, String password, String role) {
+    }
+
+    public record LoginRequest(String username, String password) {
     }
 
     public record AuthResponse(String token) {
