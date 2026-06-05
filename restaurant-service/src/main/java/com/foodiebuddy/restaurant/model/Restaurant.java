@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "restaurants")
@@ -15,12 +16,15 @@ public class Restaurant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Name is mandatory")
     @Column(nullable = false)
     private String name;
 
+    @NotBlank(message = "Address is mandatory")
     @Column(nullable = false)
     private String address;
 
+    @NotBlank(message = "Cuisine is mandatory")
     @Column(nullable = false)
     private String cuisine;
 

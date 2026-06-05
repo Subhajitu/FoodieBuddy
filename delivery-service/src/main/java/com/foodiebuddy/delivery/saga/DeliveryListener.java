@@ -1,5 +1,6 @@
 package com.foodiebuddy.delivery.saga;
 
+import com.foodiebuddy.delivery.service.DeliveryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -9,35 +10,42 @@ import org.springframework.util.StringUtils;
 @Component
 public class DeliveryListener {
 
- private static final Logger log = LoggerFactory.getLogger(DeliveryListener.class);
+    private static final Logger log = LoggerFactory.getLogger(DeliveryListener.class);
+    private final DeliveryService deliveryService;
 
- @KafkaListener(topics = "payment-success", groupId = "delivery")
- public void onPaymentSuccess(String orderId) {
-  if (!StringUtils.hasText(orderId)) {
-   log.warn("Received payment-success event without an order id");
-   return;
-  }
+    public DeliveryListener(DeliveryService deliveryService) {
+        this.deliveryService = deliveryService;
+    }
 
-  updateDeliveryStatus(orderId, "READY_FOR_PICKUP");
-  log.info("Delivery started for order {}", orderId);
- }
+    @KafkaListener(topics = "payment-success", groupId = "delivery")
+    public void onPaymentSuccess(String orderId) {
+        if (!StringUtils.hasText(orderId)) {
+            log.warn("Received payment-success event without an order id");
+            return;
+        }
 
- @KafkaListener(topics = "payment-failed", groupId = "delivery")
- public void onPaymentFailed(String orderId) {
-  if (!StringUtils.hasText(orderId)) {
-   log.warn("Received payment-failed event without an order id");
-   return;
-  }
+        try {
+            Long id = Long.parseLong(orderId);
+            deliveryService.createOrUpdateDelivery(id, "READY_FOR_PICKUP");
+            log.info("Delivery started for order {}", orderId);
+        } catch (NumberFormatException e) {
+            log.error("Invalid order id format: {}", orderId);
+        }
+    }
 
-  log.warn("Payment failed for order {}; delivery will not be started", orderId);
-  compensateFailedPayment(orderId);
- }
+    @KafkaListener(topics = "payment-failed", groupId = "delivery")
+    public void onPaymentFailed(String orderId) {
+        if (!StringUtils.hasText(orderId)) {
+            log.warn("Received payment-failed event without an order id");
+            return;
+        }
 
- private void updateDeliveryStatus(String orderId, String status) {
-  log.info("Updated delivery status for order {} to {}", orderId, status);
- }
-
- private void compensateFailedPayment(String orderId) {
-  log.info("Compensating order {} after payment failure: releasing delivery slot", orderId);
- }
+        log.warn("Payment failed for order {}; delivery will not be started", orderId);
+        try {
+            Long id = Long.parseLong(orderId);
+            deliveryService.createOrUpdateDelivery(id, "CANCELLED_PAYMENT_FAILED");
+        } catch (NumberFormatException e) {
+            log.error("Invalid order id format: {}", orderId);
+        }
+    }
 }

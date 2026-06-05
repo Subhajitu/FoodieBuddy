@@ -1,0 +1,11 @@
+com\foodiebuddy\user\controller\UserController$RegisterRequest.class
+com\foodiebuddy\user\security\JwtAuthenticationFilter.class
+com\foodiebuddy\user\repository\UserRepository.class
+com\foodiebuddy\user\model\User.class
+com\foodiebuddy\user\security\JwtUtil.class
+com\foodiebuddy\user\controller\UserController$AuthResponse.class
+com\foodiebuddy\user\security\CustomUserDetailsService.class
+com\foodiebuddy\user\controller\UserController.class
+com\foodiebuddy\user\UserApplication.class
+com\foodiebuddy\user\security\WebSecurityConfig.class
+com\foodiebuddy\user\controller\UserController$LoginRequest.class
