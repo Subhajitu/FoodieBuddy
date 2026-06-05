@@ -1,4 +1,0 @@
-com\foodiebuddy\delivery\DeliveryApplication.class
-com\foodiebuddy\delivery\security\HeaderAuthenticationFilter.class
-com\foodiebuddy\delivery\security\WebSecurityConfig.class
-com\foodiebuddy\delivery\saga\DeliveryListener.class
