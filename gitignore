@@ -1,0 +1,79 @@
+# Maven / Java
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Spring Boot
+logs/
+*.log
+
+# Eclipse
+.project
+.classpath
+.settings/
+.springBeans
+
+# IntelliJ
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+dist/
+coverage/
+
+# Environment Files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Temporary Files
+*.tmp
+*.temp
+
+# Test Reports
+surefire-reports/
+failsafe-reports/
+
+# Docker
+docker-data/
+*.tar
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+
+# SonarQube
+.sonar/
+
+# Logs
+*.out
+*.err
+
+# Frontend
+foodiebuddy-frontend/.next/
+foodiebuddy-frontend/node_modules/
+
+# Backend Build Artifacts
+discovery-server/target/
+gateway/target/
+user-service/target/
+restaurant-service/target/
+order-service/target/
+payment-service/target/
+delivery-service/target/
